@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/aruco/charuco.hpp>
+#include <algorithm>
 #include <cmath>
 #include <limits>
 

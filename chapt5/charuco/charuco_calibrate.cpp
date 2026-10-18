@@ -108,7 +108,11 @@ int main(int argc, char** argv) {
         cap >> frame;
         if (frame.empty()) break;
 
-        imageSize = frame.size();
+        if (imageSize.empty()) imageSize = frame.size();
+        if (frame.size() != imageSize) {
+            std::cerr << "相机分辨率发生变化，停止标定；请固定分辨率后重新采集。" << std::endl;
+            return 1;
+        }
         cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
         // 4. 检测 ArUco 标记
@@ -190,6 +194,11 @@ int main(int argc, char** argv) {
             cv::destroyAllWindows();
             return 0;
         }
+    }
+
+    if (static_cast<int>(allCharucoCorners.size()) < minFramesToCalibrate) {
+        std::cerr << "采集已中断，帧数不足；不计算，也不覆盖已有参数。" << std::endl;
+        return 1;
     }
 
     // ================= 9. 运行标定算法并保存 =================

@@ -1,0 +1,18 @@
+# 忽略 CMake 编译生成的各种中间文件与目录
+build/
+bin/
+*.o
+*.a
+*.so
+
+# 忽略 VS Code / CLion 的本地个性化配置
+.vscode/
+.idea/
+
+# 忽略日志文件
+*.log
+
+# 忽略大型数据集与测试视频
+dataset/
+*.mp4
+*.avi
