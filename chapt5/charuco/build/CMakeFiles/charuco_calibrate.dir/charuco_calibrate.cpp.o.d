@@ -348,4 +348,5 @@ CMakeFiles/charuco_calibrate.dir/charuco_calibrate.cpp.o: \
  /usr/include/opencv4/opencv2/video/background_segm.hpp \
  /usr/include/opencv4/opencv2/aruco.hpp \
  /usr/include/opencv4/opencv2/aruco/dictionary.hpp \
- /usr/include/opencv4/opencv2/aruco/charuco.hpp
+ /usr/include/opencv4/opencv2/aruco/charuco.hpp \
+ /home/jiaxintang/桌面/work/chapt5/charuco/physical_charuco_board.hpp
