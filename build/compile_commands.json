@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/jiaxintang/桌面/work/build",
+  "command": "/usr/bin/g++ -I/home/jiaxintang/桌面/work/chapt3/demo/include -g -std=gnu++17 -o CMakeFiles/demo.dir/src/main.cpp.o -c /home/jiaxintang/桌面/work/chapt3/demo/src/main.cpp",
+  "file": "/home/jiaxintang/桌面/work/chapt3/demo/src/main.cpp"
+},
+{
+  "directory": "/home/jiaxintang/桌面/work/build",
+  "command": "/usr/bin/g++ -I/home/jiaxintang/桌面/work/chapt3/demo/include -g -std=gnu++17 -o CMakeFiles/demo.dir/src/math_utils.cpp.o -c /home/jiaxintang/桌面/work/chapt3/demo/src/math_utils.cpp",
+  "file": "/home/jiaxintang/桌面/work/chapt3/demo/src/math_utils.cpp"
+}
+]

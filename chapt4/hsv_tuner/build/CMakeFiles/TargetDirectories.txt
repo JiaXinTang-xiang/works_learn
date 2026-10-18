@@ -1,0 +1,3 @@
+/home/jiaxintang/桌面/work/chapt4/hsv_tuner/build/CMakeFiles/hsv_tuner.dir
+/home/jiaxintang/桌面/work/chapt4/hsv_tuner/build/CMakeFiles/edit_cache.dir
+/home/jiaxintang/桌面/work/chapt4/hsv_tuner/build/CMakeFiles/rebuild_cache.dir

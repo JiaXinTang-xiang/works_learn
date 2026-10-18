@@ -1,0 +1,4 @@
+/home/jiaxintang/桌面/work/chapt5/pnp/build/CMakeFiles/pnp.dir
+/home/jiaxintang/桌面/work/chapt5/pnp/build/CMakeFiles/test_pnp.dir
+/home/jiaxintang/桌面/work/chapt5/pnp/build/CMakeFiles/edit_cache.dir
+/home/jiaxintang/桌面/work/chapt5/pnp/build/CMakeFiles/rebuild_cache.dir

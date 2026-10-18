@@ -1,0 +1,3 @@
+/home/jiaxintang/桌面/work/chapt5/charuco/build/CMakeFiles/charuco_calibrate.dir
+/home/jiaxintang/桌面/work/chapt5/charuco/build/CMakeFiles/edit_cache.dir
+/home/jiaxintang/桌面/work/chapt5/charuco/build/CMakeFiles/rebuild_cache.dir

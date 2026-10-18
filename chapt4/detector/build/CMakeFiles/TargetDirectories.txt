@@ -1,0 +1,4 @@
+/home/jiaxintang/桌面/work/chapt4/detector/build/CMakeFiles/detector.dir
+/home/jiaxintang/桌面/work/chapt4/detector/build/CMakeFiles/test_detector.dir
+/home/jiaxintang/桌面/work/chapt4/detector/build/CMakeFiles/edit_cache.dir
+/home/jiaxintang/桌面/work/chapt4/detector/build/CMakeFiles/rebuild_cache.dir

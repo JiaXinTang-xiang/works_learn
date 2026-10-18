@@ -1,0 +1,3 @@
+/home/jiaxintang/桌面/work/chapt5/calibrate/build/CMakeFiles/calibrate.dir
+/home/jiaxintang/桌面/work/chapt5/calibrate/build/CMakeFiles/edit_cache.dir
+/home/jiaxintang/桌面/work/chapt5/calibrate/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,6 @@
+# ninja log v5
+0	27	1792313496246715097	CMakeFiles/demo.dir/src/main.cpp.o	ad16bdcf05e84650
+1	156	1792313496375710844	CMakeFiles/demo.dir/src/math_utils.cpp.o	5568776826d44792
+156	196	1792313496414709559	demo	bd6f1a88cdb78fa9
+0	27	1792313561248804165	CMakeFiles/demo.dir/src/main.cpp.o	ad16bdcf05e84650
+27	66	1792313561286803180	demo	bd6f1a88cdb78fa9

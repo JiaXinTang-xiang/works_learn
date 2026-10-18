@@ -1,0 +1,1 @@
+/usr/bin/c++ -O2 -g -DNDEBUG CMakeFiles/demo.dir/src/main.cpp.o CMakeFiles/demo.dir/src/math_utils.cpp.o -o demo 
