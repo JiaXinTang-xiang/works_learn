@@ -1,0 +1,22 @@
+# robot_vision.service —— systemd 开机自启服务（参考文件，路径按你的实际改）
+# 安装：sudo cp robot_vision.service /etc/systemd/system/
+# 启用：sudo systemctl daemon-reload && sudo systemctl enable --now robot_vision
+
+[Unit]
+Description=Robocon Robot Vision Node Service
+# 在网络与本地文件系统加载就绪后启动（避免与 multi-user.target 产生依赖环死锁）
+After=network.target local-fs.target
+
+[Service]
+Type=simple
+# 替换为你实际的用户名
+User=robot
+# 替换为你编译生成的二进制绝对路径
+WorkingDirectory=/home/robot/prop_vision_system/build
+ExecStart=/home/robot/prop_vision_system/build/prop_vision_node
+# 如果崩溃则在 2 秒后全自动重启
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
