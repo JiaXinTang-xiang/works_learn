@@ -1,18 +1,72 @@
-# 忽略 CMake 编译生成的各种中间文件与目录
+# =====================================================================
+# 通用忽略规则 —— 构建产物 / 依赖 / IDE / 系统杂项 / 运行时输出
+# =====================================================================
+
+# ---------------- C/C++ 构建 (CMake / Make) ----------------
 build/
 bin/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+compile_commands.json
+Makefile
+*.cmake
+
+# 编译中间文件与二进制
 *.o
+*.obj
 *.a
 *.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
 
-# 忽略 VS Code / CLion 的本地个性化配置
+# 嵌入式 (STM32 等) 构建产物；如需提交烧录固件可删除对应行
+*.elf
+*.hex
+*.map
+*.bin
+*.lst
+
+# ---------------- Python ----------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# ---------------- IDE / 编辑器 ----------------
 .vscode/
 .idea/
+.vs/
+*.iml
+*.suo
+*.user
+*.swp
+*.swo
 
-# 忽略日志文件
+# ---------------- 系统杂项 ----------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+
+# ---------------- 日志 / 临时 / 备份 ----------------
 *.log
+*.tmp
+*.bak
+*.orig
 
-# 忽略大型数据集与测试视频
+# ---------------- 运行时输出 / 大文件 ----------------
+cap_detect_*.jpg      # red_cap_detect 程序保存的截图
 dataset/
 *.mp4
 *.avi
+*.mov
