@@ -26,6 +26,7 @@ void VisionUi::setup(const std::string& windowName) {
     std::cout << "  Q/ESC - 退出        S    - 保存当前帧" << std::endl;
     std::cout << "  M    - 红色掩膜      P    - 形态学结果" << std::endl;
     std::cout << "  D    - 全部调试窗口  R    - 重置点击点" << std::endl;
+    std::cout << "  E / e - 曝光增/减(±5000us)  G / g - 增益增/减(±1dB)" << std::endl;
     std::cout << "  + / - - 调整最小面积  [ / ] - 调整圆形度" << std::endl;
     std::cout << "  ; / ' - 调整闭运算核  , / . - 调整开运算核" << std::endl;
     std::cout << "  1    - 打印当前参数  鼠标点击 - 获取 HSV 信息" << std::endl;
@@ -91,7 +92,7 @@ void VisionUi::drawHud(cv::Mat& frame, const RedDetectionResult& r,
     // 底部提示
     int hintY = frame.rows - 55;
     cv::putText(frame,
-                "Q:Quit S:Save M:Mask P:Morph D:Debug 1:Params +/-:Area []:Circ",
+                "Q:Quit S:Save M:Mask P:Morph D:Debug 1:Params E/e:Exp G/g:Gain",
                 cv::Point(5, hintY), cv::FONT_HERSHEY_SIMPLEX, 0.3,
                 cv::Scalar(255, 255, 255), 1);
     std::snprintf(buf, sizeof(buf),

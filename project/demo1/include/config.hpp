@@ -1,6 +1,6 @@
 // config.hpp —— 全局参数配置中心
 //
-// 作用：把相机、HSV、形态学、轮廓过滤、串口、显示等所有可调参数集中到一个文件，
+// 作用：把相机、HSV、形态学、轮廓过滤、显示等所有可调参数集中到一个文件，
 //       便于调参和移植。运行时部分参数(面积/圆形度/形态学核)仍可用键盘实时调整，
 //       见 vision_ui.cpp 的快捷键。
 #pragma once
@@ -13,9 +13,10 @@ namespace cfg {
 // 相机 (Hikvision Camera)
 // ---------------------------------------------------------------------------
 inline constexpr int    CAMERA_DEVICE_INDEX  = 0;      // 枚举到的第几个设备(0=第一个)
-inline constexpr double CAMERA_EXPOSURE_US   = 5000.0; // 曝光时间(微秒)，锁死防止 HSV 漂移
-inline constexpr double CAMERA_GAIN          = 0.0;    // 增益(dB)
-inline constexpr double CAMERA_FRAMERATE     = 60.0;   // 采集帧率，<=0 表示不设置(用相机默认)
+inline constexpr double CAMERA_EXPOSURE_US   = 50000.0;// 曝光时间(微秒)。5000 在本环境会黑屏，先加大到可见，
+                                                        // 再按现场光照用键盘 e/E 微调后锁死(否则 HSV 会漂移)
+inline constexpr double CAMERA_GAIN          = 12.0;   // 增益(dB)，与参考 Python set_gain(12) 一致
+inline constexpr double CAMERA_FRAMERATE     = 0.0;    // 采集帧率，<=0 不设置(避免与较长曝光冲突，让相机自定)
 inline constexpr unsigned int GRAB_TIMEOUT_MS = 1000;  // 取流超时(毫秒)
 
 // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 // main.cpp —— 红色瓶盖识别(海康工业相机版)程序入口
 //
 // 架构：海康 SDK 采图线程 → 转独立 BGR 帧 → 容量 1 的最新帧槽 → 主线程
-//       红色检测 + 显示 + 鼠标 HSV 分析 + 串口发送。思想来自 chapt6。
+//       红色检测 + 显示 + 鼠标 HSV 分析。思想来自 chapt6。
 #include <opencv2/opencv.hpp>
 
 #include <atomic>
@@ -139,6 +139,14 @@ int main() {
 
         int key = cv::waitKey(1);
         if (key != -1) {
+            // 相机曝光/增益实时微调：画面黑就先按 E 加大曝光，直到看清为止。
+            if (key == 'e' || key == 'E') {
+                double step = (key == 'E') ? 5000.0 : -5000.0; // E 增亮 / e 减暗
+                cam.setExposureUs(std::max(100.0, cam.exposureUs() + step));
+            } else if (key == 'g' || key == 'G') {
+                double step = (key == 'G') ? 1.0 : -1.0;       // G 增 / g 减
+                cam.setGain(std::max(0.0, cam.gain() + step));
+            }
             if (ui.handleKey(key)) break;   // Q/ESC 退出
             if (ui.saveRequested) {
                 ui.saveImage(display);

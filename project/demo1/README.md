@@ -64,14 +64,14 @@ source /opt/MVS/set_env.sh          # 或 export LD_LIBRARY_PATH=/opt/MVS/lib/64
 | 参数 | 位置 | 默认 | 说明 |
 |---|---|---|---|
 | 设备索引 | `config.hpp` `CAMERA_DEVICE_INDEX` | 0 | 第 0 个设备 |
-| 曝光 | `CAMERA_EXPOSURE_US` | 5000 μs | **必须锁死**，否则 HSV 漂移 |
-| 增益 | `CAMERA_GAIN` | 0 | |
-| 帧率 | `CAMERA_FRAMERATE` | 60 | ≤0 用相机默认 |
+| 曝光 | `CAMERA_EXPOSURE_US` | 20000 μs | 现场用键盘 `E/e` 调好后**锁死**，否则 HSV 漂移 |
+| 增益 | `CAMERA_GAIN` | 12 | 与参考 Python `set_gain(12)` 一致 |
+| 帧率 | `CAMERA_FRAMERATE` | 0 | ≤0 用相机默认（避免与较长曝光冲突） |
 | 像素格式 | 运行时打印 | — | 输出统一转 BGR8，无需手动改 |
 
 取流使用 `MV_CC_GetImageBuffer` + `MV_CC_FreeImageBuffer`，并在释放前通过
-`MV_CC_ConvertPixelTypeEx` 转成独立 BGR 帧（避免 SDK 裸缓冲悬垂指针）。启动会打印当前像素格式
-（如 `BayerRG8`），若画面颜色异常先核对这里。
+`MV_CC_ConvertPixelTypeEx` 转成独立 BGR 帧（避免 SDK 裸缓冲悬垂指针）。启动会打印当前
+像素格式（如 `BayerRG8`），若画面颜色异常先核对这里。
 
 ## 6. 调参指南
 
@@ -100,6 +100,8 @@ source /opt/MVS/set_env.sh          # 或 export LD_LIBRARY_PATH=/opt/MVS/lib/64
 | `P` | 切换形态学结果窗口 |
 | `D` | 全部调试窗口开/关 |
 | `R` | 清除点击点 |
+| `E` / `e` | 曝光增/减(±5000 μs)，**黑屏时先按 `E` 增亮** |
+| `G` / `g` | 增益增/减(±1 dB) |
 | `+` / `-` | 调最小轮廓面积(±100) |
 | `[` / `]` | 调最小圆形度(±0.05) |
 | `;` / `'` | 调闭运算核(±2) |
@@ -112,6 +114,7 @@ source /opt/MVS/set_env.sh          # 或 export LD_LIBRARY_PATH=/opt/MVS/lib/64
 |---|---|
 | 枚举不到设备 | 检查供电、网线/USB；GigE 需设同网段 IP；权限不足用 `sudo` 或加 `udev` 规则 |
 | 打开失败 | 是否被其他程序(如 MVS 客户端)占用；GigE 会退回只读 Monitor 模式 |
+| **黑屏** | 曝光/增益不够：按 `E` 加大曝光(或 `G` 加增益)；若 50000 μs 仍全黑，检查镜头盖是否没摘、光圈是否关死、现场光照是否太暗 |
 | 画面颜色错误/偏色 | 核对启动打印的像素格式，本程序已统一转 BGR8，一般无需改 |
 | 识别不到红色 | 用鼠标取样重新标定 HSV；调大 `MIN_AREA`/调小 `MIN_CIRCULARITY`；确认曝光已锁死 |
 | 找不到 `libMvCameraControl.so` | `source /opt/MVS/set_env.sh` 或导出 `LD_LIBRARY_PATH` |

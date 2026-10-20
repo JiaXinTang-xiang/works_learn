@@ -256,6 +256,7 @@ bool HikCamera::setExposureUs(double us) {
     if (!opened_) return false;
     int ret = MV_CC_SetFloatValue(handle_, "ExposureTime", static_cast<float>(us));
     if (ret == 0) {
+        exposureUs_ = us;
         std::cout << "[相机] 曝光时间已设置: " << us << " us" << std::endl;
         return true;
     }
@@ -265,7 +266,14 @@ bool HikCamera::setExposureUs(double us) {
 
 bool HikCamera::setGain(double gain) {
     if (!opened_) return false;
-    return MV_CC_SetFloatValue(handle_, "Gain", static_cast<float>(gain)) == 0;
+    int ret = MV_CC_SetFloatValue(handle_, "Gain", static_cast<float>(gain));
+    if (ret == 0) {
+        gain_ = gain;
+        std::cout << "[相机] 增益已设置: " << gain << " dB" << std::endl;
+        return true;
+    }
+    std::cerr << "[相机] 设置增益失败 0x" << std::hex << ret << std::dec << std::endl;
+    return false;
 }
 
 bool HikCamera::setFramerate(double fps) {

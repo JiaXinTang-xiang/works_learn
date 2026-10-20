@@ -1,0 +1,15 @@
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+logistics_vehicle_f407\queue.o: E:\Singlechip\Keil\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
+logistics_vehicle_f407\queue.o: E:\Singlechip\Keil\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+logistics_vehicle_f407\queue.o: E:\Singlechip\Keil\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+logistics_vehicle_f407\queue.o: E:\Singlechip\Keil\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+logistics_vehicle_f407\queue.o: ../Core/Inc/FreeRTOSConfig.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+logistics_vehicle_f407\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h

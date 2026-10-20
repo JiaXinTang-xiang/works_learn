@@ -42,12 +42,18 @@ public:
     bool setGain(double gain);
     bool setFramerate(double fps);   // <=0 表示不设置
 
+    // 返回最近一次成功设置的曝光/增益(未设置过时为 -1)，供键盘实时微调。
+    double exposureUs() const { return exposureUs_; }
+    double gain()      const { return gain_; }
+
 private:
     void* handle_ = nullptr;
     bool opened_ = false;
     bool grabbing_ = false;
     int width_ = 0;
     int height_ = 0;
+    double exposureUs_ = -1.0;
+    double gain_ = -1.0;
     std::string deviceName_;
     std::string pixelFormatHex_;
 };
