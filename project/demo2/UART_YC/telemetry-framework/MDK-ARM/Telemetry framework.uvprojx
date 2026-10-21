@@ -1146,6 +1146,16 @@
               <FilePath>..\boards\drv_uart.cpp</FilePath>
             </File>
             <File>
+              <FileName>uart_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\boards\uart_protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>host_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\boards\host_uart.c</FilePath>
+            </File>
+            <File>
               <FileName>bsp_buzzer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\boards\bsp_buzzer.c</FilePath>

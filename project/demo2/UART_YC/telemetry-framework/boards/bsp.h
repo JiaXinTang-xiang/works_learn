@@ -36,6 +36,7 @@ typedef uint8_t bool_t;
 #include "drv_spi.h"
 #include "drv_can.h"
 #include "drv_uart.h"
+#include "host_uart.h"
 #include "bsp_key.h"
 #include "bsp_led.h"
 #include "bsp_oled.h"

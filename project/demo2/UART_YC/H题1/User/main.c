@@ -1,5 +1,5 @@
 #include "bsp.h"
-#include "Serial.h"
+#include "host_uart.h"
 #include "KEY.h"
 #include "SerialK230.h"
 #include "OLED.h"
@@ -19,7 +19,8 @@ int main(void)
 {
 	/* 模块初始化 */
 	Timer_Init();
-	Serial_Init();	 // 涓插彛鍒濆鍖栵紙jetson锛?
+	Proto_Init();
+	Host_UART_Init();	 // 涓插彛鍒濆鍖栵紙jetson锛?
 	CanMotor_Init(); // 鐢垫満鍒濆鍖?
 	Serial62_Init(); // JY62鍒濆鍖?
 	Serial_Init_K();
@@ -31,7 +32,7 @@ int main(void)
 
 	while (1)
 	{
-		if (Serial_GetRxFlag() == 1)
+		if (Host_UART_Poll() == 1)
 		{
 
 		}

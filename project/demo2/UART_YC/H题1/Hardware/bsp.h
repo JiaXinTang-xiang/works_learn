@@ -8,7 +8,7 @@
 #include "OLED.h"
 #include "MOTOR.h"
 #include "TIMER.h"
-#include "Serial.h"
+#include "host_uart.h"
 #include "cansteppermotor.h"  
 #include "mycan.h"
 #include "Serial62.h"

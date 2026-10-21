@@ -135,7 +135,8 @@ int main(void)
   OLED_init();
   INS_init();
   CAN_Init(&hcan1, My_CAN_Callback);
-  UART_Init(&huart1, UART_Serialplot_Call_Back, UART_BUFFER_SIZE);
+  Host_UART_Init(&huart1);
+  UART_Init(&huart1, Host_UART_OnBytes, UART_BUFFER_SIZE);
   UART_Init(&huart3, SBUS_Data_Call_Back, UART_BUFFER_SIZE);
   HAL_TIM_Base_Start_IT(&htim14);
   init_finished = 1;
@@ -147,6 +148,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {  
+	Host_UART_Poll();
 	uint8_t key = Key_GetNum();
 	// 发送数据到 ID 0x200
 	uint8_t send_data[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};

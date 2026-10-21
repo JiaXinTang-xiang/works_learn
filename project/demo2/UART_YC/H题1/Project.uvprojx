@@ -660,9 +660,14 @@
               <FilePath>.\System\Delay.c</FilePath>
             </File>
             <File>
-              <FileName>Serial.c</FileName>
+              <FileName>uart_protocol.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\System\Serial.c</FilePath>
+              <FilePath>.\System\uart_protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>host_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\host_uart.c</FilePath>
             </File>
             <File>
               <FileName>Timer.c</FileName>
