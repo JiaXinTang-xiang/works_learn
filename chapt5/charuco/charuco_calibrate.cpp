@@ -85,12 +85,19 @@ int main(int argc, char** argv) {
     }
 
     // ================= 3. 打开外接 USB 相机 =================
-    cv::VideoCapture cap("/dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB_2.0_Camera-video-index0");
-    if (!cap.isOpened()) cap.open(2);
+    // 用 CAP_V4L2 显式指定后端：默认的 GStreamer 后端会把 /dev/v4l/... 当 URI 解析、
+    // 打一堆 warning 还打不开；V4L2 后端原生认设备路径。
+    cv::VideoCapture cap("/dev/v4l/by-id/usb-HJ_USB_2.0_Camera_HJ_USB_2.0_Camera_SN0001-video-index0", cv::CAP_V4L2);
+    if (!cap.isOpened()) cap.open(2, cv::CAP_V4L2);
     if (!cap.isOpened()) {
         std::cerr << "无法打开摄像头！" << std::endl;
         return -1;
     }
+
+    // 固定分辨率 640x480：内参 K 的 fx/fy/cx/cy 都是按像素算的，标定用多大分辨率，
+    // 后面 PnP/视觉处理就必须用同样的分辨率。这里标 640x480，下游也要 640x480。
+    cap.set(cv::CAP_PROP_FRAME_WIDTH,  640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
 
     std::vector<std::vector<cv::Point2f>> allCharucoCorners;  // 每帧的角点（2D 像素）
     std::vector<std::vector<int>>        allCharucoIds;       // 每帧的角点 ID
@@ -104,11 +111,52 @@ int main(int argc, char** argv) {
     std::cout << "（注意：请先点击弹出的窗口，再按键盘！）" << std::endl;
 
     bool warnedLayoutMismatch = false;  // 「检测到标记却插值不出角点」只提示一次
+
+    // ================= 采集覆盖引导 =================
+    // 追踪板子在画面里的位置(3x3)、距离(近/中/远)、面内旋转(3档)，实时提示还缺哪一块。
+    bool posCovered[3][3] = {{false}};
+    bool sizeCovered[3]   = {false, false, false};
+    bool angleCovered[3]  = {false, false, false};
+
+    auto updateCoverage = [&](const std::vector<cv::Point2f>& corners, const cv::Size& img) {
+        if (corners.size() < 4) return;
+        cv::Point2f c(0, 0);
+        for (const auto& p : corners) c += p;
+        c *= 1.0f / (float)corners.size();
+        int gx = std::min(2, (int)(c.x / img.width * 3.0f));
+        int gy = std::min(2, (int)(c.y / img.height * 3.0f));
+        posCovered[gy][gx] = true;
+
+        cv::Rect bb = cv::boundingRect(corners);
+        double ratio = (double)(bb.width * bb.height) / (double)(img.width * img.height);
+        if (ratio < 0.12)      sizeCovered[0] = true;  // 远/小
+        else if (ratio < 0.35) sizeCovered[1] = true;  // 中
+        else                   sizeCovered[2] = true;  // 近/大
+
+        cv::RotatedRect rr = cv::minAreaRect(corners);
+        double ang = rr.angle;
+        if (rr.size.width < rr.size.height) ang += 90.0f;
+        if (ang > 45.0f)  ang -= 90.0f;
+        if (ang < -45.0f) ang += 90.0f;
+        double a = std::abs(ang);
+        if      (a < 15.0f) angleCovered[2] = true;  // 接近水平
+        else if (a < 30.0f) angleCovered[1] = true;  // 中等倾斜
+        else                angleCovered[0] = true;  // 大角度倾斜
+    };
+
     while (true) {
         cap >> frame;
         if (frame.empty()) break;
 
-        if (imageSize.empty()) imageSize = frame.size();
+        if (imageSize.empty()) {
+            imageSize = frame.size();
+            if (imageSize != cv::Size(640, 480)) {
+                std::cerr << "警告：相机实际分辨率是 " << imageSize.width << "x" << imageSize.height
+                          << "，不是 640x480！(cap.set 可能没生效，相机不支持该设置)\n"
+                          << "内参按像素计算，若继续标定，下游就必须用 "
+                          << imageSize.width << "x" << imageSize.height << "，否则结果不匹配。" << std::endl;
+            }
+        }
         if (frame.size() != imageSize) {
             std::cerr << "相机分辨率发生变化，停止标定；请固定分辨率后重新采集。" << std::endl;
             return 1;
@@ -131,6 +179,22 @@ int main(int argc, char** argv) {
         }
 
         // interpolateCornersCharuco 已执行角点亚像素精化；不再用固定窗口重复拉动角点。
+
+        // 覆盖统计 + 清晰度（Laplacian 方差，越高越清晰）
+        updateCoverage(charucoCorners, frame.size());
+        double sharpness = 0.0;
+        if (nCorners > 0) {
+            cv::Rect bb = cv::boundingRect(charucoCorners);
+            bb &= cv::Rect(0, 0, gray.cols, gray.rows);
+            if (bb.width > 4 && bb.height > 4) {
+                cv::Mat lap;
+                cv::Laplacian(gray(bb), lap, CV_64F);
+                cv::Scalar mu, sd;
+                cv::meanStdDev(lap, mu, sd);
+                sharpness = sd.val[0] * sd.val[0];
+            }
+        }
+        bool sharp = (sharpness > 50.0);  // 阈值可调：<50 一般偏糊，对焦后再按 c
 
         // 7. 画图 + 实时状态提示
         cv::Mat display = frame.clone();
@@ -168,19 +232,35 @@ int main(int argc, char** argv) {
         cv::putText(display, sub, cv::Point(12, bannerH + 24), cv::FONT_HERSHEY_SIMPLEX, 0.55,
                     cv::Scalar(0, 255, 255), 2);
 
+        // 覆盖引导 + 清晰度
+        int posCount = 0;
+        for (int r = 0; r < 3; ++r)
+            for (int cc = 0; cc < 3; ++cc) posCount += posCovered[r][cc];
+        int sizeCount  = sizeCovered[0] + sizeCovered[1] + sizeCovered[2];
+        int angleCount = angleCovered[0] + angleCovered[1] + angleCovered[2];
+        std::string cov = "Coverage: pos " + std::to_string(posCount) + "/9  dist " +
+                          std::to_string(sizeCount) + "/3  tilt " + std::to_string(angleCount) + "/3";
+        cv::putText(display, cov, cv::Point(12, bannerH + 46), cv::FONT_HERSHEY_SIMPLEX, 0.5,
+                    cv::Scalar(0, 255, 0), 1);
+        std::string shrp = "Sharpness: " + std::to_string((int)sharpness) + (sharp ? "  OK" : "  BLUR!");
+        cv::putText(display, shrp, cv::Point(12, bannerH + 64), cv::FONT_HERSHEY_SIMPLEX, 0.5,
+                    sharp ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255), 1);
+
         cv::imshow("ChArUco Calibration", display);
 
         // 8. 按键处理（失败时打印原因，不再静默）
         char key = (char)cv::waitKey(30);
         if (key == 'c') {
-            if (enough) {
+            if (enough && sharp) {
                 allCharucoCorners.push_back(charucoCorners);
                 allCharucoIds.push_back(charucoIds);
                 std::cout << "已捕获第 " << allCharucoCorners.size()
-                          << " 帧（角点数 " << nCorners << "）" << std::endl;
-            } else {
+                          << " 帧（角点数 " << nCorners << "，清晰度 " << (int)sharpness << "）" << std::endl;
+            } else if (!enough) {
                 std::cout << "未捕获：当前仅 " << nCorners << " 个角点"
                           << "（需 >= " << minCornersToCapture << "），把板子拿近/摆正一点。" << std::endl;
+            } else {
+                std::cout << "未捕获：画面偏糊（清晰度 " << (int)sharpness << " < 50），对焦/拿稳后再按 c。" << std::endl;
             }
         } else if (key == 's') {
             if ((int)allCharucoCorners.size() < minFramesToCalibrate) {
@@ -201,14 +281,59 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // ================= 9. 运行标定算法并保存 =================
+    // ================= 9. 运行标定算法（自动剔除离群帧）=================
     std::cout << "正在运行 ChArUco 标定算法（共 " << allCharucoCorners.size() << " 帧）..." << std::endl;
     cv::Mat cameraMatrix, distCoeffs;
     std::vector<cv::Mat> rvecs, tvecs;
 
-    double repError = cv::aruco::calibrateCameraCharuco(
-        allCharucoCorners, allCharucoIds, board, imageSize,
-        cameraMatrix, distCoeffs, rvecs, tvecs);
+    // 逐帧误差计算（复用：剔除循环 + 最终展示）
+    auto frameErrors = [&](const cv::Mat& K, const cv::Mat& D,
+                           const std::vector<cv::Mat>& rv, const std::vector<cv::Mat>& tv) {
+        std::vector<double> errs(allCharucoCorners.size());
+        for (size_t i = 0; i < allCharucoCorners.size(); ++i) {
+            std::vector<cv::Point3f> obj;
+            obj.reserve(allCharucoIds[i].size());
+            for (int id : allCharucoIds[i]) obj.push_back(board->chessboardCorners[id]);
+            std::vector<cv::Point2f> proj;
+            cv::projectPoints(obj, rv[i], tv[i], K, D, proj);
+            errs[i] = cv::norm(allCharucoCorners[i], proj, cv::NORM_L2) / std::sqrt((double)proj.size());
+        }
+        return errs;
+    };
+
+    // 离群帧（糊/抖/反光）会拖垮最小二乘解：反复剔除误差最大的帧并重新求解
+    const double maxFrameErr = 1.5;   // 单帧误差超过此值就剔除（可调）
+    int removed = 0;
+    double repError = 0.0;
+    while (true) {
+        repError = cv::aruco::calibrateCameraCharuco(
+            allCharucoCorners, allCharucoIds, board, imageSize,
+            cameraMatrix, distCoeffs, rvecs, tvecs);
+
+        std::vector<double> errs = frameErrors(cameraMatrix, distCoeffs, rvecs, tvecs);
+        double worstErr = -1.0;
+        size_t worstIdx = 0;
+        for (size_t i = 0; i < errs.size(); ++i)
+            if (errs[i] > worstErr) { worstErr = errs[i]; worstIdx = i; }
+
+        // 最差帧已达标，或再剔就低于最小帧数 → 打印结果并结束
+        if (worstErr <= maxFrameErr || (int)allCharucoCorners.size() <= minFramesToCalibrate) {
+            std::cout << "\n逐帧重投影误差（px，剔除后）:\n";
+            for (size_t i = 0; i < errs.size(); ++i) {
+                std::cout << "  帧" << i << ": " << errs[i] << " px (" << allCharucoCorners[i].size() << " 角点)";
+                if (errs[i] > maxFrameErr) std::cout << "  <-- 仍偏大";
+                std::cout << std::endl;
+            }
+            break;
+        }
+
+        allCharucoCorners.erase(allCharucoCorners.begin() + worstIdx);
+        allCharucoIds.erase(allCharucoIds.begin() + worstIdx);
+        ++removed;
+        std::cout << "  剔除离群帧（误差 " << worstErr << " px），剩余 " << allCharucoCorners.size() << " 帧" << std::endl;
+    }
+    if (removed > 0)
+        std::cout << "共剔除 " << removed << " 个离群帧。" << std::endl;
 
     std::cout << "标定完成！重投影 RMS: " << repError << " 像素（< 0.5 可作参考，仍需独立验证）" << std::endl;
     std::cout << "内参矩阵 K:\n" << cameraMatrix << std::endl;

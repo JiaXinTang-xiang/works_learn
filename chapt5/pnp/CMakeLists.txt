@@ -16,3 +16,20 @@ target_link_libraries(pnp PRIVATE ${OpenCV_LIBS})
 add_executable(test_pnp test_pnp.cpp)
 target_include_directories(test_pnp PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(test_pnp PRIVATE ${OpenCV_LIBS})
+
+# 黑色空心等边三角形：外三边各 9.6cm，使用最新 ChArUco 参数。
+add_executable(triangle_pnp triangle_pnp.cpp)
+target_include_directories(triangle_pnp PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(triangle_pnp PRIVATE ${OpenCV_LIBS})
+target_compile_definitions(triangle_pnp PRIVATE
+    TRIANGLE_TEMPLATE="${CMAKE_CURRENT_SOURCE_DIR}/../charuco/image.png"
+    TRIANGLE_CALIBRATION="${CMAKE_CURRENT_SOURCE_DIR}/../charuco/camera_params.yaml")
+
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(test_triangle test_triangle.cpp)
+    target_include_directories(test_triangle PRIVATE ${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(test_triangle PRIVATE ${OpenCV_LIBS})
+    add_test(NAME triangle_detection_and_pose
+             COMMAND test_triangle "${CMAKE_CURRENT_SOURCE_DIR}/../charuco/image.png")
+endif()
